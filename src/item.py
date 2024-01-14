@@ -1,9 +1,54 @@
+import csv
+from pathlib import Path
+
+
 class Item:
     """
     Класс для представления товара в магазине.
     """
     pay_rate = 1.0
     all = []
+
+
+    @property
+    def name(self):
+        """
+        Возвращает приватное имя
+        """
+        return self.__name
+
+
+    @name.setter
+    def name(self,name):
+        """
+        Обрезает строку до 10 символов
+        """
+        self.__name = name.strip()[:10].capitalize()
+
+
+    @classmethod
+    def instantiate_from_csv(cls, csv_file):
+        """
+        Класс-метод, инициализирующий экземпляры класса `Item` данными из файла _src/items.csv
+        """
+        current_file_path = Path(__file__)
+        csv_file = current_file_path.parent.parent / csv_file
+        cls.all.clear()
+        with open(csv_file, 'r', encoding='windows-1251') as csv_file:
+            file = csv.DictReader(csv_file)
+
+            for row in file:
+                cls(row['name'], float(row['price']), float(row['quantity']))
+
+
+    @staticmethod
+    def string_to_number(string: str) -> int:
+        """
+        Статический метод, возвращающий число из числа-строки
+        """
+        clean_string = string.strip().replace(',', '.')
+        return int(float(clean_string))
+
 
     def __init__(self, name: str, price: float, quantity: int) -> None:
         """
@@ -17,6 +62,7 @@ class Item:
         self.price = price
         self.quantity = quantity
         Item.all.append(self)
+
 
     def calculate_total_price(self) -> float:
         """
