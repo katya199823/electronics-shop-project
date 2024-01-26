@@ -19,11 +19,13 @@ class Item:
 
 
     @name.setter
-    def name(self, name):
-        """
-        Обрезает строку до 10 символов
-        """
-        self.__name = name.strip()[:10].capitalize()
+    def name(self, value):
+        if len(value) <= 10:
+            self.__name = value
+        else:
+            print('Длина наименования товара превышает 10 символов.')
+            self.__name = value[:10]
+
 
 
     @classmethod
