@@ -1,6 +1,6 @@
 import csv
 from pathlib import Path
-
+import os
 
 class Item:
     """
@@ -8,6 +8,8 @@ class Item:
     """
     pay_rate = 1.0
     all = []
+    PATH_CSV = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "src", "items.csv")
 
 
     @property
@@ -29,18 +31,24 @@ class Item:
 
 
     @classmethod
-    def instantiate_from_csv(cls, csv_file):
+    def instantiate_from_csv(cls, filename: str | None = PATH_CSV) -> None:
         """
-        Класс-метод, инициализирующий экземпляры класса `Item` данными из файла _src/items.csv
+        Инициализирует экземпляры класса данными из файла csv
         """
-        current_file_path = Path(__file__)
-        csv_file = current_file_path.parent.parent / csv_file
         cls.all.clear()
-        with open(csv_file, 'r', encoding='windows-1251') as csv_file:
-            file = csv.DictReader(csv_file)
-
-            for row in file:
-                cls(row['name'], float(row['price']), float(row['quantity']))
+        try:
+            with open(filename, newline="",
+                      encoding="windows-1251'", errors="replace") as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    name = row["name"]
+                    price = int(row["price"])
+                    quantity = int(row["quantity"])
+                    cls(name, price, quantity)
+        except FileNotFoundError:
+            raise FileNotFoundError("Отсутствует файл item.csv")
+        except Exception:
+            raise InstantiateCSVError
 
 
     @staticmethod
@@ -90,3 +98,11 @@ class Item:
         """
         self.price *= self.pay_rate
         return None
+
+class InstantiateCSVError(Exception):
+
+        def __init__(self):
+            self.message = "Файл item.csv поврежден"
+
+        def __str__(self):
+            return self.message
